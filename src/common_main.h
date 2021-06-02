@@ -4,9 +4,13 @@
 #include <omp.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/time.h>
-#include "gm.h"
+#include <time.h>
+
+#if defined(__GNUC__) || defined(__SUNPRO_CC)
 #include <pthread.h>
+#endif
+
+#include "gm.h"
 
 class main_t 
 {
@@ -20,6 +24,7 @@ class main_t
 
         void pin_CPU()
         {
+#if (defined(__GNUC__) || defined(__SUNPRO_CC)) && !defined(_WIN32)
             #pragma omp parallel 
             {
                 pthread_t thread;
@@ -29,6 +34,7 @@ class main_t
                 CPU_SET(omp_get_thread_num(), &CPU);
                 pthread_setaffinity_np(thread, sizeof(CPU), &CPU);
             }
+#endif
         }
 
     virtual void main(int argc, char** argv)
@@ -70,26 +76,24 @@ class main_t
         //--------------------------------------------
         // Load graph and creating reverse edges
         //--------------------------------------------
-        struct timeval T1, T2;
+        time_t T1, T2;
         char *fname = argv[1];
-        gettimeofday(&T1, NULL); 
+        time(&T1); 
         b = G.load_binary(fname);
         if (!b) {
             printf("error reading graph\n");
             exit(EXIT_FAILURE);
         }
-        gettimeofday(&T2, NULL); 
+        time(&T2); 
         printf("graph loading time=%lf\n", 
-            (T2.tv_sec - T1.tv_sec)*1000 + 
-            (T2.tv_usec - T1.tv_usec)*0.001 
+            (double) ((T2 - T1) * 1000)
         );
 
-        gettimeofday(&T1, NULL); 
+        time(&T1);
         G.make_reverse_edges();
-        gettimeofday(&T2, NULL); 
+        time(&T2);
         printf("reverse edge creation time=%lf\n", 
-            (T2.tv_sec - T1.tv_sec)*1000 + 
-            (T2.tv_usec - T1.tv_usec)*0.001 
+            (double)((T2 - T1) * 1000)
         );
 
         
@@ -114,7 +118,7 @@ class main_t
 
     void do_main_steps()
     {
-        struct timeval T1, T2;
+        time_t T1, T2;
         printf("\n");
         pin_CPU();
 
@@ -124,13 +128,12 @@ class main_t
             exit(EXIT_FAILURE);
         }
 
-        gettimeofday(&T1, NULL); 
+        time(&T1); 
         b = run();
-        gettimeofday(&T2, NULL); 
+        time(&T2);
         printf("[%d]running_time(ms)=%lf\n", 
             gm_rt_get_num_threads(),
-            (T2.tv_sec - T1.tv_sec)*1000 + 
-            (T2.tv_usec - T1.tv_usec)*0.001 
+            (double) ((T2 - T1) * 1000)
             - time_to_exclude
         );
         fflush(stdout);

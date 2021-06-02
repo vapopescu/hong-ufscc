@@ -1,5 +1,6 @@
 #ifndef GM_H_
 #define GM_H_
+
 #include <math.h>
 #include <stdlib.h>
 #include <cstddef>
@@ -27,6 +28,5 @@
 #include "gm_order.h"
 #include "gm_collection.h"
 #include "gm_map.h"
-
 
 #endif  // GM_H_

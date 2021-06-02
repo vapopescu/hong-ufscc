@@ -1,9 +1,11 @@
-
 #include "gm.h"
 #include "scc.h"
 #include "my_work_queue.h"
 #include <list>
+
+#if (defined(__GNUC__) || defined(__SUNPRO_CC)) && !defined(_WIN32)
 #include <sys/resource.h>
+#endif
 
 class simple_stack {
     public:
@@ -64,6 +66,7 @@ void initialize_tarjan()
     G_lowlink = new int32_t[G_num_nodes];
     G_instack = new int32_t[G_num_nodes];
 
+#if (defined(__GNUC__) || defined(__SUNPRO_CC)) && !defined(_WIN32)
     // need enough program stack size for recursion
     {
         const rlim_t kStackSize = 4096 * 1024L * 1024L;  
@@ -79,7 +82,10 @@ void initialize_tarjan()
             assert(result == 0);
         }
     }
+#endif
+
     the_stack = new simple_stack_array(G_num_nodes);
+
 
 #pragma omp parallel for
     for(int i = 0;i < G_num_nodes; i++) 

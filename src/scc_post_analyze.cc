@@ -1,4 +1,3 @@
-
 #include "scc.h"
 
 static int32_t* G_scc_size = NULL;

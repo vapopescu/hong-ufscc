@@ -1,10 +1,16 @@
 #ifndef GM_RUNTIME_H_
 #define GM_RUNTIME_H_
+
 #include <assert.h>
 #include <omp.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <random>
+
+#if defined(__GNUC__) || defined(__SUNPRO_CC)
 #include <sys/time.h>
+#endif
+
 #include "gm_mem_helper.h"
 #include "gm_lock.h"
 

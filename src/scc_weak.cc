@@ -14,7 +14,7 @@ node_t* get_WCC() {return G_WCC;}
 
 static int pool_cnt=0;
 static NODE_SET** node_set_pool;
-NODE_SET* init_node_set_pool(int sz) {
+void init_node_set_pool(int sz) {
     pool_cnt = sz;
     node_set_pool = new NODE_SET*[sz];
     for(int i =0;i<sz;i++)

@@ -7,6 +7,9 @@ LIBDIR = ../gm_graph/lib
 OUTDIR = ./
 LIB = gmgraph
 LFLAGS = -L$(LIBDIR) -l$(LIB)
+ifeq ($(OS),Windows_NT)
+	LFLAGS += -L"C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64" -lws2_32
+endif
 CFLAGS = -O3 -g -I. -I$(INCDIR) -fopenmp  -std=gnu++0x
 INCFILES = $(shell ls $(INCDIR))
 H_FILES = $(addprefix $(INCDIR)/, $(INCFILES))

@@ -2,6 +2,7 @@
 #define GM_SET_H
 
 #include <set>
+
 #include "gm_internal.h"
 #include "gm_lock.h"
 

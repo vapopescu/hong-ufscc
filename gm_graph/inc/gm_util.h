@@ -5,8 +5,8 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
-#include "gm_internal.h"
 
+#include "gm_internal.h"
 
 /*
  * A class to tokenize a string.

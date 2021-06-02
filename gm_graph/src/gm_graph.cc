@@ -1,4 +1,3 @@
-#include <arpa/inet.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -7,7 +6,13 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <sys/time.h>
+#include <time.h>
+
+#if (defined(__GNUC__) || defined(__SUNPRO_CC)) && !(defined(_WIN32))
+#include <arpa/inet.h>
+#elif defined(_WIN32) // defined(_MSC_VER)
+#include <winsock.h>
+#endif
 
 #include "gm_graph.h"
 #include "gm_util.h"
@@ -199,8 +204,8 @@ void gm_graph::make_reverse_edges() {
     // freeze
     if (!_frozen) freeze();
 
-    struct timeval t1, t2;
-    gettimeofday(&t1, NULL);
+    time_t t1, t2;
+    time(&t1);
 
     node_t n_nodes = num_nodes();
 
@@ -278,9 +283,9 @@ void gm_graph::make_reverse_edges() {
     // TODO: if is_edge_source_ready?
     if (is_edge_source_ready()) prepare_edge_source_reverse();
 
-    gettimeofday(&t2, NULL);
-    //printf("time to compute reverse edge: %lf ms\n", 
-    //        (t2.tv_sec - t1.tv_sec) * 1000 - (t2.tv_usec-t1.tv_usec)*0.001);
+    time(&t2);
+    printf("time to compute reverse edge: %lf ms\n", 
+            (double) ((t2 - t1) * 1000));
 
     // TODO: if id2idx?
     delete[] loc;

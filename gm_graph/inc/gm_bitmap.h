@@ -2,6 +2,7 @@
 #define GM_BITMAP_H_
 
 #include <stdint.h>
+
 #include "gm_atomic_wrapper.h"
 
 unsigned _gm_get_bit(unsigned char* Bit, int n);

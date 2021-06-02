@@ -2,6 +2,7 @@
 #define GM_ORDER_H
 
 #include <list>
+
 #include "gm_internal.h"
 #include "gm_bitmap.h"
 

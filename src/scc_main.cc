@@ -1,11 +1,11 @@
-#include "gm.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <map>
 #include <omp.h>
 #include <assert.h>
-#include <sys/time.h>
+#include <time.h>
 
+#include "gm.h"
 #include "scc.h"
 #include "common_main.h"
 #include "my_work_queue.h"
@@ -144,14 +144,14 @@ class my_main : public main_t
             return true;
         }
 
-#define PHASE_BEGIN(X) {if (detail_time) {gettimeofday(&V1, NULL);}}
-#define PHASE_END(X)   {if (detail_time) {gettimeofday(&V2, NULL); \
+#define PHASE_BEGIN(X) {if (detail_time) {time(&V1);}}
+#define PHASE_END(X)   {if (detail_time) {time(&V2); \
     printf("\t[%s phase: %f ms]\n", X,  \
-            (V2.tv_sec - V1.tv_sec)*1000.0 + (V2.tv_usec - V1.tv_usec)*0.001);}}
+            (V2 - V1) * 1000.0);}}
 #define EMPTY_PHASE(X) {if (detail_time) printf("\t[%s phase: %f ms]\n", X, 0.0);}
 
     private:
-        struct timeval V1, V2;
+        time_t V1, V2;
 
         // Baseline: Trim1 + FW-BW
         void do_baseline()

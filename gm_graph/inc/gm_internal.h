@@ -12,8 +12,17 @@
 // defines the size of edge_t and node_t
 #include "gm_graph_typedef.h"  
 
+// include sync atomics for windows compiler
+#if defined(_MSC_VER)
+#include "sync_win32.h" 
+#endif
+
+#if defined(_WIN32)
+#include "rand_win32.h"
+#endif
+
 // include the correct platform dependency
-#if defined(__x86_64__) || defined(__i386__)
+#if defined(__x86_64__) || defined(__i386__) || defined(_WIN32)
  #include "../platform/x86/inc/gm_platform_helpers.h"
 #else
  #if defined(__sparc)

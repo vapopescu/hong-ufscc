@@ -1,6 +1,14 @@
 #include <omp.h>
 #include <list>
+#include <chrono>
+#include <thread>
+
+#if defined(__GNUC__) || defined(__SUNPRO_CC)
 #include <unistd.h>
+#elif defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
 #include "my_work_queue.h"
 #include "scc.h"
 
@@ -57,11 +65,12 @@ static bool check_if_all_finished()
     return b;
 }
 
+#if defined(__GNUC__) || defined(__SUNPRO_CC)
 static void my_sleep(int& sleep_cnt)
 {
     if (sleep_cnt < 50000) {
-        for(int i=0;i<800;i++) {
-             asm volatile ("pause" ::: "memory");
+        for (int i = 0; i < 800; i++) {
+            asm volatile ("pause" ::: "memory");
         }
     }
     else if (sleep_cnt < 80000) {
@@ -69,13 +78,34 @@ static void my_sleep(int& sleep_cnt)
     }
     else if (sleep_cnt < 100000) {
         usleep(10); // sleep for 100 us
-    } 
+    }
     /*else {
         usleep(1000); // sleep for 1 ms
     }*/
 
-    sleep_cnt ++;
+    sleep_cnt++;
 }
+#elif defined(_MSC_VER)
+static void my_sleep(int& sleep_cnt)
+{
+    if (sleep_cnt < 50000) {
+        for (int i = 0; i < 800; i++) {
+            _mm_pause(); _ReadWriteBarrier();
+        }
+    }
+    else if (sleep_cnt < 80000) {
+        std::this_thread::sleep_for(std::chrono::microseconds(10)); // sleep for 10 us
+    }
+    else if (sleep_cnt < 100000) {
+        std::this_thread::sleep_for(std::chrono::microseconds(100)); // sleep for 100 us
+    }
+    /*else {
+        usleep(1000); // sleep for 1 ms
+    }*/
+
+    sleep_cnt++;
+}
+#endif
 
 my_work* work_q_fetch(int id)
 {

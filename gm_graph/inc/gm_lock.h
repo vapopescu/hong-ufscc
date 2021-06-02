@@ -1,6 +1,8 @@
 #ifndef GM_LOCK_H_
 #define GM_LOCK_H_
+
 #include <stdint.h>
+
 #include "gm_internal.h"
 
 typedef volatile int32_t gm_spinlock_t;

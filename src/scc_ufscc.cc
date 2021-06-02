@@ -1,15 +1,17 @@
+#include <list>
+#include <assert.h>
+
+#if (defined(__GNUC__) || defined(__SUNPRO_CC)) && !defined(_WIN32)
+#include <sys/resource.h>
+#endif
 
 #include "gm.h"
 #include "scc.h"
 #include "my_work_queue.h"
-#include <list>
-#include <sys/resource.h>
-#include <assert.h>
 
 #define HAVE_PROFILER 0
 
 #if HAVE_PROFILER
-//#include <gperftools/profiler.h>
 #include <gperftools/profiler.h>
 #endif
 
@@ -72,11 +74,15 @@ typedef uint64_t worker_set;
 #define CLAIM_SUCCESS   3
 #define CLAIM_FOUND     4
 
+#if defined(__GNUC__) || defined(__SUNPRO_CC)
 #define atomic_read(v)      (*(volatile typeof(*v) *)(v))
 #define atomic_write(v,a)   (*(volatile typeof(*v) *)(v) = (a))
+#elif defined(_MSC_VER)
+#define atomic_read(v)      __sync_fetch_and_or(v, 0)
+#define atomic_write(v,a)   __sync_fetch_and_or(v, a)
+#endif
 #define fetch_or(a, b)      __sync_fetch_and_or(a,b)
 #define cas(a, b, c)        __sync_bool_compare_and_swap(a,b,c)
-
 
 struct uf_node {
     worker_set          workers;

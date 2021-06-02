@@ -1,10 +1,11 @@
 #ifndef MY_WORK_QUEUE_H
 #define MY_WORK_QUEUE_H
 
-#include "gm.h"
 #include <set>
-#include<vector>
+#include <vector>
 #include <unordered_set>
+
+#include "gm.h"
 
 typedef std::unordered_set<node_t> NODE_SET;
 

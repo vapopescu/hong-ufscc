@@ -1,9 +1,11 @@
 #ifndef GM_DFS_TEMPLATE_H
 #define GM_DFS_TEMPLATE_H
+
 #include <omp.h>
 #include <string.h>
 #include <set>
 #include <vector>
+
 #include "gm_graph.h"
 
 //-----------------------------------------------

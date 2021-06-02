@@ -1,7 +1,12 @@
 #ifndef GM_PLATFORM_HELPERS
 #define GM_PLATFORM_HELPERS
 
-#if defined(__arch64__) || defined(__x86_64__) 
+#if defined(__GNUC__) || defined(__SUNPRO_CC)
+#elif defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
+#if defined(__arch64__) || defined(__x86_64__)
 //-------------------------------------------------------------
 // General CAS implementation for 64bit environment
 //-------------------------------------------------------------
@@ -32,6 +37,7 @@
 #define _gm_CAS_asm_64(ptr, oldval, newval) _gm_CAS_asm(ptr, oldval, newval)
 
 #elif defined(__i386__)
+
 //-------------------------------------------------------------
 // General CAS implementation for 32bit environment
 //-------------------------------------------------------------
@@ -43,7 +49,7 @@ _gm_i386_casX(volatile unsigned long long* addr,
      unsigned long new_high, unsigned long new_low)
 {
     char success;
-    asm volatile("lock; cmpxchg8b (%6);"
+    asm __volatile__ ("lock; cmpxchg8b (%6);"
                  "setz %7; "
                  : "=a" (expected_low), "=d" (expected_high)
                  : "0" (expected_low), "1" (expected_high),
@@ -72,7 +78,7 @@ static inline unsigned long
 _gm_i386_cas(volatile unsigned long* ptr, unsigned long old, unsigned long _new)
 {
     unsigned long prev;
-    asm volatile("lock;"
+    asm __volatile__ ("lock;"
                  "cmpxchgl %1, %2;"
                  : "=a"(prev)
                  : "q"(_new), "m"(*ptr), "a"(old)
@@ -86,11 +92,13 @@ _gm_i386_cas(volatile unsigned long* ptr, unsigned long old, unsigned long _new)
     const unsigned long    newVal = *(reinterpret_cast< unsigned long*>(&new_val)); \
     _gm_i386_cas(reinterpret_cast<volatile unsigned long*>(dest), oldVal, newVal); \
     })
-#else // end of 32bit x86
-#error "Unsupported x86 platform"
 #endif 
 
+#if defined(__GNUC__) || defined(__SUNPRO_CC)
 #define _gm_pause() asm volatile ("pause" ::: "memory")
+#elif defined(_MSC_VER)
+#define _gm_pause() _mm_pause(), _ReadWriteBarrier()
+#endif
 
 #define _gm_atomic_fetch_and_or_char(ptr, val) __sync_fetch_and_or(ptr, val)
 #define _gm_atomic_fetch_and_and_char(ptr, val)  __sync_fetch_and_and(ptr, val)
@@ -101,7 +109,7 @@ _gm_i386_cas(volatile unsigned long* ptr, unsigned long old, unsigned long _new)
 #define _gm_atomic_cas_int32(ptr, oldval, newval)  __sync_bool_compare_and_swap(ptr, oldval, newval)
 #define _gm_atomic_swap_int32(ptr, newval) __sync_lock_test_and_set(ptr, newval)
 
-#if defined(__arch64__) || defined(__x86_64__) 
+#if defined(__arch64__) || defined(__x86_64__)  || defined(_M_AMD64)
 #define _gm_atomic_cas_int64(ptr, oldval, newval)  __sync_bool_compare_and_swap(ptr, oldval, newval)
 
 // In my expriements, somehow gcc's builtint CAS was not working correctly for float/double type,
@@ -115,7 +123,7 @@ __sync_bool_compare_and_swap(reinterpret_cast<volatile int64_t*>(dest), oldVal, 
 })
 #define _gm_atomic_cas_float(ptr, oldval, newval) _gm_CAS_asm_32(ptr,oldval,newval)
 
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(_M_IX86)
 
 #define _gm_atomic_cas_int64(ptr, oldval, newval)  _gm_CAS_asm_64(ptr,oldval,newval)
 
@@ -131,11 +139,19 @@ __sync_bool_compare_and_swap(reinterpret_cast<volatile int*>(dest), oldVal, newV
 })
 #endif
 
-
+#if defined(__GNUC__) || defined(__SUNPRO_CC)
 #define _gm_full_barrier() __sync_synchronize()
+#elif defined(_MSC_VER)
+#define _gm_full_barrier() _mm_mfence()
+#endif
 
 #define _gm_atomic_fetch_and_add_edge(ptr, val) __sync_fetch_and_add(ptr, val)
 #define _gm_atomic_fetch_and_add_node(ptr, val) __sync_fetch_and_add(ptr, val)
+
+#if defined(_MSC_VER)
+__forceinline unsigned long __builtin_bswap32(unsigned long val) { return _byteswap_ulong(val); }
+__forceinline unsigned __int64 __builtin_bswap64(unsigned __int64 val) { return _byteswap_uint64(val); }
+#endif
 
 
 #ifdef GM_NODE64

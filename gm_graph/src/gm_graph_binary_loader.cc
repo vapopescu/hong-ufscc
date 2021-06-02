@@ -1,4 +1,3 @@
-#include <arpa/inet.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -7,6 +6,12 @@
 #include <map>
 #include <set>
 #include <vector>
+
+#if (defined(__GNUC__) || defined(__SUNPRO_CC)) && !(defined(_WIN32))
+#include <arpa/inet.h>
+#elif defined(_WIN32) // defined(_MSC_VER)
+#include <winsock.h>
+#endif
 
 #include "gm_graph.h"
 #include "gm_util.h"
@@ -63,7 +68,7 @@ bool gm_graph::load_binary_internal(FILE*f, uint32_t magic_word, bool need_semi_
 {
     clear_graph();
 
-    int32_t key;
+    int32_t key=0;
     int i;
 
 #if GM_GRAPH_NUMA_OPT
@@ -96,14 +101,14 @@ bool gm_graph::load_binary_internal(FILE*f, uint32_t magic_word, bool need_semi_
     i = fread(&key, 4, 1, f); // index size (4B)
     saved_node_t_size = (old_flipped_format) ? key : ntohl(key);
     if (saved_node_t_size > sizeof(node_t)) {
-        fprintf(stderr, "node_t size mismatch:%d (expect %ld), please re-generate the graph\n", key, sizeof(node_t));
+        fprintf(stderr, "node_t size mismatch:%d (expect %zd), please re-generate the graph\n", key, sizeof(node_t));
         goto error_return;
     }
 
     i = fread(&key, 4, 1, f); // index size (4B)
     saved_edge_t_size = (old_flipped_format) ? key : ntohl(key);
     if (saved_edge_t_size > sizeof(edge_t)) {
-        fprintf(stderr, "edge_t size mismatch:%d (expect %ld), please re-generate the graph\n", key, sizeof(edge_t));
+        fprintf(stderr, "edge_t size mismatch:%d (expect %zd), please re-generate the graph\n", key, sizeof(edge_t));
         goto error_return;
     }
     if ((saved_node_t_size != 4) && (saved_node_t_size != 8)) {

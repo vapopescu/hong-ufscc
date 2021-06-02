@@ -9,7 +9,7 @@ void c(gm_graph& G)
 }
 
 
-#define GM_DEFINE_USER_MAIN 1
+#define GM_DEFINE_USER_MAIN 0
 #if GM_DEFINE_USER_MAIN
 
 // convert -? : for how to run generated main program

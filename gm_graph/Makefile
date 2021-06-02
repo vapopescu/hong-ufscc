@@ -5,7 +5,10 @@ BIN = ../bin
 INC = inc
 SRC = src
 OBJ = obj
-CFLAGS = -O3 -g -I$(INC) -fopenmp -Wall 
+CFLAGS = -O3 -g -I$(INC) -fopenmp -Wall
+ifeq ($(OS),Windows_NT)
+	LFLAGS += -L"C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64" -lws2_32
+endif
 OUT =$(LIB)/libgmgraph.a 
 
 # where to find source codes
@@ -28,7 +31,7 @@ $(BUILD_DIRS):
 	mkdir $(JBIN)
 
 $(OBJ)/%.o: %.cc .
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(LFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(OBJ)/*.o $(OUT) $(JAVACLASSES)

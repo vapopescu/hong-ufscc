@@ -1,5 +1,6 @@
 #ifndef GM_BFS_TEMPLATE_H
 #define GM_BFS_TEMPLATE_H
+
 #include <omp.h>
 #include <string.h>
 #include <map>

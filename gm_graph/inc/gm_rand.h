@@ -1,7 +1,7 @@
 #ifndef GM_RAND_H_
 #define GM_RAND_H_
-#include <stdint.h>
 
+#include <stdint.h>
 
 /*
  * Algorithms based on George Marsaglia's "Xorshift RNGs "article in

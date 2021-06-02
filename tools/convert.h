@@ -9,6 +9,7 @@
 #include <cmath>
 #include <algorithm>
 #include <omp.h>
+
 #include "gm.h"
 
 void c(gm_graph& G);

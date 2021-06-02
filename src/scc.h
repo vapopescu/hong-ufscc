@@ -1,12 +1,11 @@
 #ifndef SCC_H
 #define SCC_H
 
-#include "my_work_queue.h"
-#include "gm.h"
 #include <assert.h>
 #include <unordered_set>
 
-
+#include "my_work_queue.h"
+#include "gm.h"
 
 extern int32_t* G_Color;
 extern node_t* G_SCC;

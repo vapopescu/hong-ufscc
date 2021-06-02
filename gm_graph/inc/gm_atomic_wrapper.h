@@ -8,9 +8,7 @@
 
 // The following check is required because we use __compare_and_swap
 // which is a gcc-specific builtin 
-#if !defined(__GNUC__) && !defined(__SUNPRO_CC)
-#error "GM_Graph library requires gcc or oracle studio for now" 
-#endif // no GNUC
+#if defined(__GNUC__) || defined(__SUNPRO_CC)
 
 //---------------------------------------------------------
 // A thin layer of atomic operations
@@ -51,5 +49,6 @@ static inline bool _gm_atomic_compare_and_swap(double *dest, double old_val, dou
 {
     return _gm_atomic_cas_double(dest, old_val, new_val);
 }
+#endif // GNUC
 
 #endif // end of file

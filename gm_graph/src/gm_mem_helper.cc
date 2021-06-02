@@ -1,4 +1,5 @@
 #include <assert.h>
+
 #include "gm_mem_helper.h"
 
 void gm_mem_helper::resize(int n) {

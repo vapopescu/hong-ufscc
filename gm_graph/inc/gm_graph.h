@@ -1,5 +1,6 @@
 #ifndef GM_GRAPH_H_
 #define GM_GRAPH_H_
+
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
