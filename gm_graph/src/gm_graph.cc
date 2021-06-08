@@ -6,7 +6,7 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <time.h>
+#include <chrono>
 
 #if (defined(__GNUC__) || defined(__SUNPRO_CC)) && !(defined(_WIN32))
 #include <arpa/inet.h>
@@ -203,9 +203,7 @@ void gm_graph::make_reverse_edges() {
 
     // freeze
     if (!_frozen) freeze();
-
-    time_t t1, t2;
-    time(&t1);
+    auto T1 = std::chrono::high_resolution_clock::now();
 
     node_t n_nodes = num_nodes();
 
@@ -283,9 +281,10 @@ void gm_graph::make_reverse_edges() {
     // TODO: if is_edge_source_ready?
     if (is_edge_source_ready()) prepare_edge_source_reverse();
 
-    time(&t2);
+    auto T2 = std::chrono::high_resolution_clock::now();
     printf("time to compute reverse edge: %lf ms\n", 
-            (double) ((t2 - t1) * 1000));
+        std::chrono::duration_cast<std::chrono::nanoseconds>(T2 - T1).count() / 1000000.0
+    );
 
     // TODO: if id2idx?
     delete[] loc;

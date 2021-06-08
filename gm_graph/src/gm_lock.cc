@@ -10,7 +10,7 @@ void gm_spinlock_acquire(gm_spinlock_t* ptr) {
         while (*ptr == 1)            // spin on local cache, until the pointer is updated by remote cpu
         {
             // pause (let other hw-threads to proceed)
-            for(int j=0;j<10;j++) _gm_pause();
+            for (int j = 0; j < 10; j++) _gm_pause();
         }
     }
 

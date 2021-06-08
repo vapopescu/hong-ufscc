@@ -97,7 +97,7 @@ _gm_i386_cas(volatile unsigned long* ptr, unsigned long old, unsigned long _new)
 #if defined(__GNUC__) || defined(__SUNPRO_CC)
 #define _gm_pause() asm volatile ("pause" ::: "memory")
 #elif defined(_MSC_VER)
-#define _gm_pause() _mm_pause(), _ReadWriteBarrier()
+#define _gm_pause() _mm_pause()
 #endif
 
 #define _gm_atomic_fetch_and_or_char(ptr, val) __sync_fetch_and_or(ptr, val)

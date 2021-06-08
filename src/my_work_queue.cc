@@ -90,7 +90,7 @@ static void my_sleep(int& sleep_cnt)
 {
     if (sleep_cnt < 50000) {
         for (int i = 0; i < 800; i++) {
-            _mm_pause(); _ReadWriteBarrier();
+            _mm_pause();
         }
     }
     else if (sleep_cnt < 80000) {

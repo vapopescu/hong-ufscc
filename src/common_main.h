@@ -4,7 +4,7 @@
 #include <omp.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <chrono>
 
 #if defined(__GNUC__) || defined(__SUNPRO_CC)
 #include <pthread.h>
@@ -76,24 +76,23 @@ class main_t
         //--------------------------------------------
         // Load graph and creating reverse edges
         //--------------------------------------------
-        time_t T1, T2;
         char *fname = argv[1];
-        time(&T1); 
+        auto T1 = std::chrono::high_resolution_clock::now();
         b = G.load_binary(fname);
         if (!b) {
             printf("error reading graph\n");
             exit(EXIT_FAILURE);
         }
-        time(&T2); 
-        printf("graph loading time=%lf\n", 
-            (double) ((T2 - T1) * 1000)
+        auto T2 = std::chrono::high_resolution_clock::now();
+        printf("graph loading time(ms)=%lf\n", 
+            std::chrono::duration_cast<std::chrono::nanoseconds>(T2 - T1).count() / 1000000.0
         );
 
-        time(&T1);
+        T1 = std::chrono::high_resolution_clock::now();
         G.make_reverse_edges();
-        time(&T2);
-        printf("reverse edge creation time=%lf\n", 
-            (double)((T2 - T1) * 1000)
+        T2 = std::chrono::high_resolution_clock::now();
+        printf("reverse edge creation time(ms)=%lf\n",
+            std::chrono::duration_cast<std::chrono::nanoseconds>(T2 - T1).count() / 1000000.0
         );
 
         
@@ -118,7 +117,6 @@ class main_t
 
     void do_main_steps()
     {
-        time_t T1, T2;
         printf("\n");
         pin_CPU();
 
@@ -128,12 +126,12 @@ class main_t
             exit(EXIT_FAILURE);
         }
 
-        time(&T1); 
+        auto T1 = std::chrono::high_resolution_clock::now();
         b = run();
-        time(&T2);
+        auto T2 = std::chrono::high_resolution_clock::now();
         printf("[%d]running_time(ms)=%lf\n", 
             gm_rt_get_num_threads(),
-            (double) ((T2 - T1) * 1000)
+            std::chrono::duration_cast<std::chrono::nanoseconds>(T2 - T1).count() / 1000000.0
             - time_to_exclude
         );
         fflush(stdout);

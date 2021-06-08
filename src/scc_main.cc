@@ -3,7 +3,7 @@
 #include <map>
 #include <omp.h>
 #include <assert.h>
-#include <time.h>
+#include <chrono>
 
 #include "gm.h"
 #include "scc.h"
@@ -144,14 +144,14 @@ class my_main : public main_t
             return true;
         }
 
-#define PHASE_BEGIN(X) {if (detail_time) {time(&V1);}}
-#define PHASE_END(X)   {if (detail_time) {time(&V2); \
+#define PHASE_BEGIN(X) {if (detail_time) {V1 = std::chrono::high_resolution_clock::now();}}
+#define PHASE_END(X)   {if (detail_time) {V2 = std::chrono::high_resolution_clock::now(); \
     printf("\t[%s phase: %f ms]\n", X,  \
-            (V2 - V1) * 1000.0);}}
+        std::chrono::duration_cast<std::chrono::nanoseconds>(V2 - V1).count() / 1000000.0);}}
 #define EMPTY_PHASE(X) {if (detail_time) printf("\t[%s phase: %f ms]\n", X, 0.0);}
 
     private:
-        time_t V1, V2;
+        std::chrono::steady_clock::time_point V1, V2;
 
         // Baseline: Trim1 + FW-BW
         void do_baseline()
