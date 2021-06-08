@@ -1,3 +1,4 @@
+#include <atomic>
 #include <list>
 #include <assert.h>
 
@@ -74,22 +75,12 @@ typedef uint64_t worker_set;
 #define CLAIM_SUCCESS   3
 #define CLAIM_FOUND     4
 
-#if defined(__GNUC__) || defined(__SUNPRO_CC)
-#define atomic_read(v)      (*(volatile typeof(*v) *)(v))
-#define atomic_write(v,a)   (*(volatile typeof(*v) *)(v) = (a))
-#elif defined(_MSC_VER)
-#define atomic_read(v)      __sync_val_compare_and_swap(v, 0, 0)
-#define atomic_write(v,a)   __sync_lock_test_and_set(v, a)
-#endif
-#define fetch_or(a, b)      __sync_fetch_and_or(a,b)
-#define cas(a, b, c)        __sync_bool_compare_and_swap(a,b,c)
-
 struct uf_node {
-    worker_set          workers;
-    node_t              parent;
-    node_t              list_next;
-    unsigned char       uf_status;
-    unsigned char       list_status;
+    std::atomic<worker_set>     workers;
+    std::atomic<node_t>         parent;
+    std::atomic<node_t>         list_next;
+    std::atomic<unsigned char>  uf_status;
+    std::atomic<unsigned char>  list_status;
 };
 
 
@@ -120,7 +111,7 @@ public:
 
     bool is_in_list (node_t state)
     {
-        return (atomic_read (&uf_array[state].list_status) != LIST_TOMB);
+        return (uf_array[state].list_status != LIST_TOMB);
     }
 
 
@@ -142,7 +133,7 @@ public:
 
             // if we exit this loop, a.status == TOMB or we returned a LIVE state
             while ( 1 ) {
-                a_status = atomic_read (&uf_array[a].list_status);
+                a_status = uf_array[a].list_status;
 
                 // return directly if a is LIVE
                 if (a_status == LIST_LIVE) {
@@ -156,7 +147,7 @@ public:
             }
 
             // find next state: a --> b
-            b = atomic_read (&uf_array[a].list_next);
+            b = uf_array[a].list_next;
 
             // if a is TOMB and only element, then the SCC is DEAD
             if (a == b || b == 0) {
@@ -167,7 +158,7 @@ public:
 
             // if we exit this loop, b.status == TOMB or we returned a LIVE state
             while ( 1 ) {
-                b_status = atomic_read (&uf_array[b].list_status);
+                b_status = uf_array[b].list_status;
 
                 // return directly if b is LIVE
                 if (b_status == LIST_LIVE) {
@@ -181,11 +172,11 @@ public:
             }
 
             // a --> b --> c
-            c = atomic_read (&uf_array[b].list_next);
+            c = uf_array[b].list_next;
 
             // make the list shorter (a --> c)
-            if (atomic_read (&uf_array[a].list_next) == b) {
-                atomic_write (&uf_array[a].list_next, c);
+            if (uf_array[a].list_next == b) {
+                uf_array[a].list_next = c;
             }
 
             a = c; // continue searching from c
@@ -196,12 +187,14 @@ public:
     bool remove_from_list (node_t state)
     {
         unsigned char         list_s;
+        unsigned char         expected;
 
         // only remove list item if it is LIVE , otherwise (LIST_LOCK) wait
         while ( true ) {
-            list_s = atomic_read (&uf_array[state].list_status);
+            list_s = uf_array[state].list_status;
             if (list_s == LIST_LIVE) {
-                if (cas (&uf_array[state].list_status, LIST_LIVE, LIST_TOMB) ){
+                expected = LIST_LIVE;
+                if (uf_array[state].list_status.compare_exchange_weak(expected, LIST_TOMB) ){
                     G_Color[state-1] = -2; // globally visited (prevent other workers from exploring)
                     return 1;
                 }
@@ -227,21 +220,21 @@ public:
         node_t              f         = find (state);
 
         // is the state dead?
-        if (atomic_read (&uf_array[f].uf_status) == UF_DEAD)
+        if (uf_array[f].uf_status == UF_DEAD)
             return CLAIM_DEAD;
 
         // did we previously explore a state in this SCC?
-        if ( (atomic_read (&uf_array[f].workers) & w_id ) != 0) {
+        if ( (uf_array[f].workers & w_id ) != 0) {
             return CLAIM_FOUND;
             // NB: cycle is possibly missed (in case f got updated)
             // - however, next iteration should detect this
         }
 
         // Add our worker ID to the set, and ensure it is the UF representative
-        orig_workers = fetch_or (&uf_array[f].workers, w_id);
-        while ( atomic_read (&uf_array[f].parent) != 0 ) {
+        orig_workers = uf_array[f].workers.fetch_or(w_id);
+        while ( uf_array[f].parent != 0 ) {
             f = find (f);
-            fetch_or (&uf_array[f].workers, w_id);
+            uf_array[f].workers.fetch_or(w_id);
         }
         if (orig_workers == 0ULL)
             return CLAIM_FIRST;
@@ -256,13 +249,13 @@ public:
     node_t find (node_t state)
     {
         // recursively find and update the parent (path compression)
-        node_t       parent = atomic_read(&uf_array[state].parent);
+        node_t              parent = uf_array[state].parent;
         if (parent == 0)
             return state;
 
-        node_t root = find (parent);
+        node_t              root = find (parent);
         if (root != parent)
-            atomic_write(&uf_array[state].parent, root);
+            uf_array[state].parent = root;
         return root;
     }
 
@@ -276,18 +269,18 @@ public:
              return 1;
 
         // we assume that a == find(a)
-        node_t   b_r = find (b);
+        node_t              b_r = find (b);
 
         // return true if the representatives are equal
         if (a == b_r)
             return 1;
 
         if (b_r < a) {
-            if (atomic_read(&uf_array[b_r].parent) == 0)
+            if (uf_array[b_r].parent == 0)
                 return 0;
         }
 
-        if (atomic_read(&uf_array[a].parent) == 0)
+        if (uf_array[a].parent == 0)
             return 0;
 
         // otherwise retry
@@ -338,8 +331,8 @@ public:
         }
 
         // swap the list entries
-        a_n = atomic_read (&uf_array[a_l].list_next);
-        b_n = atomic_read (&uf_array[b_l].list_next);
+        a_n = uf_array[a_l].list_next;
+        b_n = uf_array[b_l].list_next;
 
         // in case singleton sets
         if (a_n == 0)
@@ -347,21 +340,21 @@ public:
         if (b_n == 0)
             b_n = b_l;
 
-        atomic_write (&uf_array[a_l].list_next, b_n);
-        atomic_write (&uf_array[b_l].list_next, a_n);
+        uf_array[a_l].list_next = b_n;
+        uf_array[b_l].list_next = a_n;
 
         // update parent
-        atomic_write (&uf_array[q].parent, r);
+        uf_array[q].parent = r;
 
         // only update worker set for r if q adds workers
-        q_w = atomic_read (&uf_array[q].workers);
-        r_w = atomic_read (&uf_array[r].workers);
+        q_w = uf_array[q].workers;
+        r_w = uf_array[r].workers;
         if ( (q_w | r_w) != r_w) {
             // update!
-            fetch_or (&uf_array[r].workers, q_w);
-            while (atomic_read (&uf_array[r].parent) != 0) {
+            uf_array[r].workers.fetch_or(q_w);
+            while (uf_array[r].parent != 0) {
                 r = find (r);
-                fetch_or (&uf_array[r].workers, q_w);
+                uf_array[r].workers.fetch_or(q_w);
             }
         }
 
@@ -383,7 +376,7 @@ public:
     bool is_dead (node_t state)
     {
         node_t               f = find (state);
-        return ( atomic_read (&uf_array[f].uf_status) == UF_DEAD );
+        return ( uf_array[f].uf_status == UF_DEAD );
     }
 
 
@@ -394,12 +387,12 @@ public:
     {
         bool                result = false;
         node_t              f      = find (state);
-        unsigned char       status = atomic_read (&uf_array[f].uf_status);
+        unsigned char       status = uf_array[f].uf_status;
 
         while ( status != UF_DEAD ) {
             if (status == UF_LIVE)
-                result = cas (&uf_array[f].uf_status, UF_LIVE, UF_DEAD);
-            status = atomic_read (&uf_array[f].uf_status);
+                result = uf_array[f].uf_status.compare_exchange_weak(status, UF_DEAD);
+            status = uf_array[f].uf_status;
         }
 
         return result;
@@ -411,17 +404,20 @@ public:
 
     bool lock_uf (node_t a)
     {
-        if (atomic_read (&uf_array[a].uf_status) == UF_LIVE) {
-           if (cas (&uf_array[a].uf_status, UF_LIVE, UF_LOCK)) {
+        unsigned char expected;
 
-               // successfully locked
-               // ensure that we actually locked the representative
-               if (atomic_read (&uf_array[a].parent) == 0)
-                   return 1;
+        if (uf_array[a].uf_status == UF_LIVE) {
+            expected = UF_LIVE;
+            if (uf_array[a].uf_status.compare_exchange_weak(expected, UF_LOCK)) {
 
-               // otherwise unlock and try again
-               atomic_write (&uf_array[a].uf_status, UF_LIVE);
-           }
+                // successfully locked
+                // ensure that we actually locked the representative
+                if (uf_array[a].parent == 0)
+                    return 1;
+
+                // otherwise unlock and try again
+                uf_array[a].uf_status = UF_LIVE;
+            }
         }
         return 0;
     }
@@ -429,19 +425,21 @@ public:
 
     void unlock_uf (node_t a)
     {
-        atomic_write (&uf_array[a].uf_status, UF_LIVE);
+        uf_array[a].uf_status = UF_LIVE;
     }
 
 
     bool lock_list (node_t a, node_t *a_l)
     {
         char pick;
+        unsigned char expected;
 
         while ( 1 ) {
             pick = pick_from_list (a, a_l);
             if ( pick != PICK_SUCCESS )
                 return 0;
-            if (cas (&uf_array[*a_l].list_status, LIST_LIVE, LIST_LOCK) )
+            expected = LIST_LIVE;
+            if (uf_array[*a_l].list_status.compare_exchange_weak(expected, LIST_LOCK) )
                 return 1;
         }
     }
@@ -449,7 +447,7 @@ public:
 
     void unlock_list (node_t a_l)
     {
-        atomic_write (&uf_array[a_l].list_status, LIST_LIVE);
+        uf_array[a_l].list_status = LIST_LIVE;
     }
 
 
@@ -487,10 +485,10 @@ public:
         printf ("\x1B[44m%5d %10d %10d %7s %7s %10d\x1B[0m\n",
             depth,
             state-1,
-            atomic_read (&uf_array[state].parent)-1,
-            print_uf_status (atomic_read (&uf_array[state].uf_status)).c_str() ,
-            print_list_status (atomic_read (&uf_array[state].list_status)).c_str() ,
-            atomic_read (&uf_array[state].list_next) -1 );
+            uf_array[state].parent-1,
+            print_uf_status (uf_array[state].uf_status).c_str() ,
+            print_list_status (uf_array[state].list_status).c_str() ,
+            uf_array[state].list_next -1 );
 
         if (uf_array[state].parent != 0) {
             debug_aux (uf_array[state].parent, depth+1);

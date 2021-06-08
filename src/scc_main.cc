@@ -151,7 +151,7 @@ class my_main : public main_t
 #define EMPTY_PHASE(X) {if (detail_time) printf("\t[%s phase: %f ms]\n", X, 0.0);}
 
     private:
-        std::chrono::steady_clock::time_point V1, V2;
+        std::chrono::high_resolution_clock::time_point V1, V2;
 
         // Baseline: Trim1 + FW-BW
         void do_baseline()
