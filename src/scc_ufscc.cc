@@ -79,7 +79,7 @@ typedef uint64_t worker_set;
 #define atomic_write(v,a)   (*(volatile typeof(*v) *)(v) = (a))
 #elif defined(_MSC_VER)
 #define atomic_read(v)      __sync_fetch_and_or(v, 0)
-#define atomic_write(v,a)   __sync_fetch_and_or(v, a)
+#define atomic_write(v,a)   __sync_fetch_and_store(v, a)
 #endif
 #define fetch_or(a, b)      __sync_fetch_and_or(a,b)
 #define cas(a, b, c)        __sync_bool_compare_and_swap(a,b,c)
