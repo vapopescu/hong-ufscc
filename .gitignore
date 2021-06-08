@@ -7,6 +7,18 @@
 benchmarks/
 lib/
 
+# Visual Studio Code files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/*properties.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Local History for Visual Studio Code
+.history/
+
 # User-specific files
 *.rsuser
 *.suo
