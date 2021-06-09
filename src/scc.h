@@ -37,7 +37,7 @@ void do_tarjan_parallel_color(gm_graph& G, node_t* G_WCC);
 //------------------------
 void initialize_ufscc();
 void finalize_ufscc();
-void do_ufscc_all(gm_graph& G);
+int do_ufscc_all(gm_graph& G);
 void do_ufscc(gm_graph& G, int root_color, node_t root);
 
 //-----------------------------

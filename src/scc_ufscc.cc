@@ -509,7 +509,6 @@ private:
 
 unionfind     *uf;
 stats_counter *global_c;
-int used_ufscc = 0;
 
 
 void initialize_ufscc ()
@@ -519,23 +518,25 @@ void initialize_ufscc ()
     global_c = new stats_counter ();
 }
 
+void print_ufscc_stats()
+{
+    printf("\n");
+    printf("initial states count:     %10d\n", global_c->n_initial_states);
+    printf("unique states count:      %10d\n", global_c->n_unique_states);
+    printf("total states count:       %10d\n", global_c->n_states);
+    printf("unique transitions count: %10d\n", global_c->n_unique_trans);
+    printf("total transitions count:  %10d\n", global_c->n_trans);
+    printf("- self-loop count:        %10d\n", global_c->n_self_loop);
+    printf("- claim dead count:       %10d\n", global_c->n_claim_dead);
+    printf("- claim found count:      %10d\n", global_c->n_claim_found);
+    printf("- claim success count:    %10d\n", global_c->n_claim_success);
+    printf("- cum. max stack depth:   %10d\n", global_c->n_max_stack);
+}
 
 void finalize_ufscc ()
 {
-    if (used_ufscc) {
-        printf("\n");
-        printf("initial states count:     %10d\n", global_c->n_initial_states);
-        printf("unique states count:      %10d\n", global_c->n_unique_states);
-        printf("total states count:       %10d\n", global_c->n_states);
-        printf("unique transitions count: %10d\n", global_c->n_unique_trans);
-        printf("total transitions count:  %10d\n", global_c->n_trans);
-        printf("- self-loop count:        %10d\n", global_c->n_self_loop);
-        printf("- claim dead count:       %10d\n", global_c->n_claim_dead);
-        printf("- claim found count:      %10d\n", global_c->n_claim_found);
-        printf("- claim success count:    %10d\n", global_c->n_claim_success);
-        printf("- cum. max stack depth:   %10d\n", global_c->n_max_stack);
-    }
     delete uf;
+    delete global_c;
 }
 
 
@@ -657,14 +658,13 @@ backtrack:
 }
 
 
-void do_ufscc_all (gm_graph& G)
+int do_ufscc_all (gm_graph& G)
 {
 #if HAVE_PROFILER
     printf ("Start profiling\n");
     ProfilerStart ("ufscc.perf");
 #endif
 
-    used_ufscc=1;
     // run the algorithm in parallel
     #pragma omp parallel
     {
@@ -727,7 +727,6 @@ void do_ufscc_all (gm_graph& G)
             max_SCC = scc_sizes[i];
         }
     }
-    printf("\n\nMAX SCC SIZE:     %10d\n\n", max_SCC);
-
-
+    
+    return max_SCC;
 }

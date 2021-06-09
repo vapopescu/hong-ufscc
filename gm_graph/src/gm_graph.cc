@@ -203,7 +203,6 @@ void gm_graph::make_reverse_edges() {
 
     // freeze
     if (!_frozen) freeze();
-    auto T1 = std::chrono::high_resolution_clock::now();
 
     node_t n_nodes = num_nodes();
 
@@ -280,11 +279,6 @@ void gm_graph::make_reverse_edges() {
 
     // TODO: if is_edge_source_ready?
     if (is_edge_source_ready()) prepare_edge_source_reverse();
-
-    auto T2 = std::chrono::high_resolution_clock::now();
-    printf("time to compute reverse edge: %lf ms\n", 
-        std::chrono::duration_cast<std::chrono::nanoseconds>(T2 - T1).count() / 1000000.0
-    );
 
     // TODO: if id2idx?
     delete[] loc;

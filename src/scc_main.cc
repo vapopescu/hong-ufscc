@@ -12,6 +12,7 @@
 
 //extern void work_q_print_max_depth();
 extern void check_WCC();
+extern void print_ufscc_stats();
 
 node_t* G_SCC;
 int32_t G_num_nodes;
@@ -38,14 +39,16 @@ class my_main : public main_t
             method = atoi(argv[0]);
             if ((method < 0) || (method > 7)) return false;
 
-            if (argc >= 2) {
-                if (strncmp(argv[1],"-d",2)==0) 
+            int i = 1;
+            while (i <= 2) {
+                if (strncmp(argv[i],"-d",2)==0) 
                     detail_time = 1;
-                else if (strncmp(argv[1],"-a",2)==0) 
+                else if (strncmp(argv[i],"-a",2)==0) 
                     analyze = 1;
-                else if (strncmp(argv[1],"-p",2)==0)
+                else if (strncmp(argv[i],"-p",2)==0)
                     print = 1;
-                else {printf("ignoring %s\n", argv[1]);}
+                else {printf("ignoring %s\n", argv[i]);}
+                i++;
             }
 
             return true;
@@ -132,6 +135,10 @@ class my_main : public main_t
             //if (analyze) work_q_print_max_depth();
 
             if (analyze) create_histogram_and_print();
+
+            if (analyze && method == 5) {
+                print_ufscc_stats();
+            }
 
             if (print) output_scc_list();
             
@@ -254,7 +261,7 @@ class my_main : public main_t
                 EMPTY_PHASE("WCC");
                 EMPTY_PHASE("FB");
                 if (analyze) printf("First_SCC_size = 0\n");
-                if (analyze) printf("trimmed = 0\n", trimmed);
+                if (analyze) printf("trimmed = %d\n", trimmed);
                 if (analyze) printf("SCC_size_from_WCC = %d\n", 0); // WCC never identifies a SCC
                 return;
             }
@@ -317,12 +324,17 @@ class my_main : public main_t
         // UFSCC
         void do_baseline_global_ufscc()
         {
-            do_ufscc_all(G);
+            int max_SCC = do_ufscc_all(G);
+            if (analyze) {
+                printf("\n\nMAX SCC SIZE:     %10d\n\n", max_SCC);
+            }
         }
 };
 
+#ifndef _NO_MAIN
 int main(int argc, char** argv)
 {
     my_main T;
     T.main(argc, argv);
 }
+#endif
