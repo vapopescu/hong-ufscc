@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <atomic>
 #include <map>
 #include <vector>
 #include <stdlib.h>
@@ -447,8 +448,8 @@ friend class gm_edge_list_graph_reader;
     void delete_frozen_graph();
     void allocate_memory_for_frozen_graph(node_t n, edge_t m);
 
-    node_t _numNodes;
-    edge_t _numEdges;
+    std::atomic<node_t> _numNodes;
+    std::atomic<edge_t> _numEdges;
     bool _reverse_edge;
     bool _frozen;
     bool _directed;
