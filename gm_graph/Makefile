@@ -25,12 +25,14 @@ include common.mk
 all: $(BUILD_DIRS) $(OUT)
 
 $(LIB)/libgmgraph.a: $(OBJECTS)
+	mkdir -p $(LIB)
 	$(AR) r $@  $^  
 
 $(BUILD_DIRS): 
 	mkdir $(JBIN)
 
 $(OBJ)/%.o: %.cc .
+	mkdir -p $(OBJ)
 	$(CC) $(CFLAGS) $(LFLAGS) -c $< -o $@
 
 clean:

@@ -4,8 +4,10 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # Author specified files and directories
-benchmarks/
-lib/
+*.o
+libgmgraph.a
+libhongufscc.a
+scc
 
 # Visual Studio Code files
 .vscode/*
