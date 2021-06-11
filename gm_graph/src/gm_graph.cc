@@ -457,10 +457,12 @@ void gm_graph::allocate_memory_for_frozen_graph(node_t n, edge_t m) {
 node_t gm_graph::add_node() {
     if (_frozen) thaw();
 
+    node_t n = _numNodes++;
+
     std::vector<edge_dest_t> T;  // empty vector
-    flexible_graph[_numNodes] = T; // T is copied
+    flexible_graph[n] = T; // T is copied
        
-    return _numNodes++;
+    return n+1;
 }
 
 edge_t gm_graph::add_edge(node_t n, node_t m) {
@@ -469,13 +471,15 @@ edge_t gm_graph::add_edge(node_t n, node_t m) {
 
     if (_frozen) thaw();
 
+    edge_t e = _numEdges++;
+
     edge_dest_t T;
     T.dest = m;
-    T.edge = _numEdges;
+    T.edge = e;
 
     flexible_graph[n].push_back(T);
 
-    return _numEdges++;
+    return e+1;
 }
 
 void gm_graph::clear_graph(bool clean_key_id_mappings) {
