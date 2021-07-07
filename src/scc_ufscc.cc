@@ -704,12 +704,10 @@ int do_ufscc_all (gm_graph& G)
         delete local_c;
     }
 
-
 #if HAVE_PROFILER
     printf ("Done profiling\n");
     ProfilerStop();
 #endif
-
 
     int *scc_sizes = new int[G_num_nodes]();
 
@@ -728,5 +726,6 @@ int do_ufscc_all (gm_graph& G)
         }
     }
     
+    delete[] scc_sizes;
     return max_SCC;
 }
