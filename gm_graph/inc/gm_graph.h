@@ -443,7 +443,7 @@ friend class gm_edge_list_graph_reader;
         _nodekey_defined = false;
 
     }
-  private:
+  protected:
 
     void delete_frozen_graph();
     void allocate_memory_for_frozen_graph(node_t n, edge_t m);
