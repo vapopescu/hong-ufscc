@@ -13,7 +13,7 @@
 #include "scc.h"
 
 
-static int max_th=1;
+static int max_th = 1;
 static int padding1[8];
 static gm_spinlock_t q_lock = 0;
 static int padding2[32];
@@ -79,9 +79,9 @@ static void my_sleep(int& sleep_cnt)
     else if (sleep_cnt < 100000) {
         usleep(10); // sleep for 100 us
     }
-    /*else {
+    else {
         usleep(1000); // sleep for 1 ms
-    }*/
+    }
 
     sleep_cnt++;
 }
@@ -99,9 +99,9 @@ static void my_sleep(int& sleep_cnt)
     else if (sleep_cnt < 100000) {
         std::this_thread::sleep_for(std::chrono::microseconds(100)); // sleep for 100 us
     }
-    /*else {
-        usleep(1000); // sleep for 1 ms
-    }*/
+    else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1)); // sleep for 1 ms
+    }
 
     sleep_cnt++;
 }

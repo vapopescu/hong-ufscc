@@ -7,7 +7,7 @@
 
 typedef int32_t gm_spinlock_t;
 
-// return true if quired
+// return true if acquired
 bool gm_spinlock_try_acquire(gm_spinlock_t* ptr);
 void gm_spinlock_acquire(gm_spinlock_t* ptr);
 void gm_spinlock_release(gm_spinlock_t* ptr);

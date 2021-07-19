@@ -31,4 +31,4 @@ scc_nomain.o: scc_main.cc
 	$(CC) $(CFLAGS) -D_NO_MAIN -c $^ -o $@	
 
 clean :
-	\rm $(NAME) $(LIBNAME) *.o
+	rm -f $(NAME) $(LIBNAME) *.o
