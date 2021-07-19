@@ -1,6 +1,7 @@
 #ifndef GM_H_
 #define GM_H_
 
+#define _CRT_SECURE_NO_DEPRECATE
 #include <math.h>
 #include <stdlib.h>
 #include <cstddef>

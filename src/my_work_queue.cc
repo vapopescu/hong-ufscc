@@ -25,7 +25,7 @@ static int padding4[32];
 std::vector<my_work*> the_q;
 static int max_depth = 0;
 
-int work_q_size() {return the_q.size();}
+size_t work_q_size() {return the_q.size();}
 
 bool is_work_q_empty_from_seq_context() {return work_queue_empty;}
 
@@ -200,7 +200,7 @@ void work_q_put_all(int thread_id, std::vector<my_work*>& work)
         work_queue_empty = false;
     }
 
-    int depth = the_q.size();
+    int depth = (int)the_q.size();
     if (depth > max_depth) max_depth = depth;
 
     gm_spinlock_release(&q_lock);
@@ -216,7 +216,7 @@ void work_q_put(int thread_id, my_work* w)
     the_q.push_back(w);
     work_queue_empty = false;
 
-    int depth = the_q.size();
+    int depth = (int)the_q.size();
     if (depth > max_depth) max_depth = depth;
 
     gm_spinlock_release(&q_lock);

@@ -65,7 +65,7 @@ class main_t
         num_threads = num;
         if (num == -1)
         {
-            printf("exploration mode\n", num);
+            printf("exploration mode\n");
         }
         else 
         {

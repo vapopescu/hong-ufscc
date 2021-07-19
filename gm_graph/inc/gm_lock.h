@@ -5,7 +5,7 @@
 
 #include "gm_internal.h"
 
-typedef volatile int32_t gm_spinlock_t;
+typedef int32_t gm_spinlock_t;
 
 // return true if quired
 bool gm_spinlock_try_acquire(gm_spinlock_t* ptr);

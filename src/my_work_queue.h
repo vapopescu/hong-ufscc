@@ -17,13 +17,13 @@ public:
     int depth;                          // what is this for?
 };
 
-bool     is_work_q_empty_from_seq_context(); 
-my_work* work_q_fetch(int thread_id);
-void     work_q_fetch_N(int thread_id, int N, std::vector<my_work*>& works);
-void     work_q_put(int thread_id, my_work* work);
-void     work_q_put_all(int thread_id, std::vector<my_work*>& work);
-void     work_q_init(int num_threads);  // called at the beginning
-void     work_q_print_max_depth();
-int      work_q_size();
+bool        is_work_q_empty_from_seq_context(); 
+my_work*    work_q_fetch(int thread_id);
+void        work_q_fetch_N(int thread_id, int N, std::vector<my_work*>& works);
+void        work_q_put(int thread_id, my_work* work);
+void        work_q_put_all(int thread_id, std::vector<my_work*>& work);
+void        work_q_init(int num_threads);  // called at the beginning
+void        work_q_print_max_depth();
+size_t      work_q_size();
 
 #endif

@@ -252,7 +252,7 @@ void create_work_items_from_wcc(gm_graph& G)
                 assert(wcc_sets[i]!= NULL);
                 my_work* w1 = new my_work();
                 w1->color = G_Color[i];
-                w1->count = wcc_sets[i]->size();
+                w1->count = (int)wcc_sets[i]->size();
                 assert(w1->count > 0);
                 w1->color_set = wcc_sets[i];
                 small_works.push_back(w1);

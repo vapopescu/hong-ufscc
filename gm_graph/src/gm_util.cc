@@ -146,7 +146,7 @@ std::string gmutil_parseStringFromString(const std::string s) {
 /*
  * Method to create arrays based on a given value type and size.
  */
-void *gmutil_getArrayType(VALUE_TYPE vt, int size) {
+void *gmutil_getArrayType(VALUE_TYPE vt, size_t size) {
     switch (vt) {
         case GMTYPE_BOOL:
             return (void *) new bool[size];
@@ -334,7 +334,7 @@ void gmutil_loadValueIntoVectorAtPosition(void *vector, std::string val, VALUE_T
         }
 
         case GMTYPE_FLOAT: {
-            float f = gmutil_parseDoubleFromString(val);
+            float f = (float)gmutil_parseDoubleFromString(val);
             GM_FVECT* V = (GM_FVECT*) vector;
             if (V->size() <= position) V->resize(position + 1, 0.0);
             V->at(position) = f;
@@ -419,36 +419,36 @@ void gmutil_loadDummyValueIntoVector(void *vector, VALUE_TYPE vt) {
 static void gmutil_copyVectorIntoArray(GM_BVECT& SRC, bool* dest, edge_t* ind) {
 #pragma omp parallel for
     //for(size_t i = 0; i < SRC.size(); i++) dest[(ind==NULL)?i:ind[i]] = SRC[i];
-    for (long long i = 0; i < SRC.size(); i++)
-        dest[i] = SRC[(ind == NULL) ? i : ind[i]];
+    for (long long i = 0; i < (long long)SRC.size(); i++)
+        dest[i] = (bool)SRC[(ind == NULL) ? i : ind[i]];
 }
 
 static void gmutil_copyVectorIntoArray(GM_IVECT& SRC, int* dest, edge_t* ind) {
 #pragma omp parallel for
     //for(size_t i = 0; i < SRC.size(); i++) dest[(ind==NULL)?i:ind[i]] = SRC [i];
-    for (long long i = 0; i < SRC.size(); i++)
-        dest[i] = SRC[(ind == NULL) ? i : ind[i]];
+    for (long long i = 0; i < (long long)SRC.size(); i++)
+        dest[i] = (int)SRC[(ind == NULL) ? i : ind[i]];
 }
 
 static void gmutil_copyVectorIntoArray(GM_LVECT& SRC, long* dest, edge_t* ind) {
 #pragma omp parallel for
     //for(size_t i = 0; i < SRC.size(); i++) dest[(ind==NULL)?i:ind[i]] = SRC [i];
-    for (long long i = 0; i < SRC.size(); i++)
-        dest[i] = SRC[(ind == NULL) ? i : ind[i]];
+    for (long long i = 0; i < (long long)SRC.size(); i++)
+        dest[i] = (long)SRC[(ind == NULL) ? i : ind[i]];
 }
 
 static void gmutil_copyVectorIntoArray(GM_FVECT& SRC, float* dest, edge_t* ind) {
 #pragma omp parallel for
     //for(size_t i = 0; i < SRC.size(); i++) dest[(ind==NULL)?i:ind[i]] = SRC [i];
-    for (long long i = 0; i < SRC.size(); i++)
-        dest[i] = SRC[(ind == NULL) ? i : ind[i]];
+    for (long long i = 0; i < (long long)SRC.size(); i++)
+        dest[i] = (float)SRC[(ind == NULL) ? i : ind[i]];
 }
 
 static void gmutil_copyVectorIntoArray(GM_DVECT& SRC, double* dest, edge_t* ind) {
 #pragma omp parallel for
     //for(size_t i = 0; i < SRC.size(); i++) dest[(ind==NULL)?i:ind[i]] = SRC [i];
-    for (long long i = 0; i < SRC.size(); i++)
-        dest[i] = SRC[(ind == NULL) ? i : ind[i]];
+    for (long long i = 0; i < (long long)SRC.size(); i++)
+        dest[i] = (double)SRC[(ind == NULL) ? i : ind[i]];
 }
 
 void gmutil_copyVectorIntoArray(void* vector, void* array, VALUE_TYPE vt, edge_t* indirection) {

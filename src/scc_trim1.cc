@@ -197,10 +197,10 @@ static void create_trim1_compact_1b(gm_graph& G)
 static void create_trim1_compact_2()
 {
     trim_targets.clear();
-    sz[0] = L[0].size();
+    sz[0] = (int)L[0].size();
     for(int i = 1; i < gm_rt_get_num_threads(); i++) 
     {
-        sz[i] = sz[i-1] + L[i].size();
+        sz[i] = sz[i-1] + (int)L[i].size();
     }
     trim_targets.resize(sz[gm_rt_get_num_threads()-1]);
 }

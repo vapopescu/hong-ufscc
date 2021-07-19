@@ -1,6 +1,7 @@
 #ifndef SCC_H
 #define SCC_H
 
+#define _CRT_SECURE_NO_DEPRECATE
 #include <assert.h>
 #include <unordered_set>
 

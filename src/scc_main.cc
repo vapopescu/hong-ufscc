@@ -298,7 +298,7 @@ class my_main : public main_t
             PHASE_BEGIN("WCC");
             do_global_wcc(G);
             create_work_items_from_wcc(G);
-            if (analyze) {printf("#queue_size = %d\n",work_q_size());}
+            if (analyze) {printf("#queue_size = %zd\n", work_q_size());}
             PHASE_END("WCC");
 
             PHASE_BEGIN("FB");

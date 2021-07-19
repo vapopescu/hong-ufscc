@@ -357,7 +357,7 @@ class gm_bfs_template
         if (next_count == 0) return true;  // BFS is finished
 
         int next_state = state;
-        const float RRD_THRESHOLD = 0.05;
+        const float RRD_THRESHOLD = 0.05f;
         switch (state) {
             case ST_SMALL:
                 if (next_count >= THRESHOLD1) {
@@ -623,7 +623,7 @@ class gm_bfs_template
     }
 
     void finish_thread_que(int tid) {
-        node_t local_cnt = thread_local_next_level[tid].size();
+        node_t local_cnt = (node_t)thread_local_next_level[tid].size();
         //copy curr_cnt to next_cnt
         if (local_cnt > 0) {
             node_t old_idx = _gm_atomic_fetch_and_add_node(&next_count, local_cnt);

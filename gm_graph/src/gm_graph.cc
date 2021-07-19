@@ -595,7 +595,7 @@ node_t gm_graph::add_nodekey(node_t key) {
 
     std::unordered_map<node_t, node_t>::iterator I = _numeric_key.find(key);
     if (I == _numeric_key.end())  {
-        node_t nid = _numeric_key.size();
+        node_t nid = (node_t)_numeric_key.size();
         _numeric_key[key] = nid;
 
         if ((size_t)nid >= _numeric_reverse_key.capacity()) {

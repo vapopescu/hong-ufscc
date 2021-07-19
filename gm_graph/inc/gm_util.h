@@ -76,7 +76,7 @@ private:
 /*
  * Methods to manipulate arrays based on different value types.
  */
-void *gmutil_getArrayType(VALUE_TYPE vt, int size);
+void *gmutil_getArrayType(VALUE_TYPE vt, size_t size);
 int gmutil_getSizeOfType(VALUE_TYPE vt);
 void loadValueBasedOnType(void *arr, long pos, std::string val, VALUE_TYPE vt);
 void storeValueBasedOnType(void *arr, long pos, std::ofstream& file, VALUE_TYPE vt);
